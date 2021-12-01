@@ -1,0 +1,11 @@
+Exercise 13.1: Prisoner’s dilemma with multiple rounds. Simulate the prisoner’s
+dilemma for a number of rounds and calculate the accumulated years in prison. Initially,
+choose the parameters N = 10, T = 0, R = 0.5, P = 1 and S = 1.5.
+a. Fixing the opponent’s strategy to m, show that the best strategy is n = m−1, as
+shown in Fig. 13.3a.
+b. Generate a 2D map of years in prison as a function of the player’s strategy n and
+the opponent’s strategy m, as shown in Fig. 13.3b.
+c. While keeping T = 0 and P = 1, play with R and S to see how these parameters
+affect the results. Show that, as long as the essential condition in a prisoner’s dilemma
+(T < R < P < S) is satisfied, it is always best to have the strategy m−1 against a player
+with strategy m.
