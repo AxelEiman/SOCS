@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 
 N = 11      # Number of rounds
 T = 0       # Punishment for lone snitch
-R = 0.5     # Punishment if neither snitch
+R = 0.9     # Punishment if neither snitch
 P = 1       # Punishment if both snitch
-S = 1.5     # Punishment if snitched on
+S = 1.1     # Punishment if snitched on
 
 # Exercise 13.1
 m = 6       # Opponents strategy
@@ -77,6 +77,7 @@ ax1b.set_ylabel("n")
 ax1b.set_title("Years in prison")
 ax1b.figure.colorbar(im)
 
-plt.savefig("figures/13_1ab")
+#plt.savefig(f"figures/13_1c R=0,9 S=1,1")
 plt.show()
+
 
