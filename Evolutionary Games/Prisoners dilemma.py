@@ -9,7 +9,7 @@ S = 1.5     # Punishment if snitched on
 
 # Exercise 13.1
 m = 6       # Opponents strategy
-n = 5       # Own strategy
+# n = 1       # Own strategy
 
 
 def play_rounds(n, m, nrounds):
@@ -17,9 +17,9 @@ def play_rounds(n, m, nrounds):
     o_punishment = 0
     m_prev = 0
     o_prev = 0
-    for round in range(nrounds):
-        m_play = make_choice(n, round, o_prev)
-        o_play = make_choice(m, round, m_prev)
+    for r in range(nrounds):
+        m_play = make_choice(n, r, o_prev)
+        o_play = make_choice(m, r, m_prev)
 
         if m_play == 0 and o_play == 0:
             m_punishment += R
@@ -38,25 +38,45 @@ def play_rounds(n, m, nrounds):
     return m_punishment, o_punishment
 
 
-def make_choice(strat, round, other):
-    if round+1 <= strat and other==0:
+def make_choice(strat, r, other):
+    if r+1 <= strat and other == 0:
         return 0
     else:
         return 1
 
-me = np.zeros(N)
-op = np.zeros(N)
+
+me1 = np.zeros(N)
+op1 = np.zeros(N)
+
 for n in range(N):
-    print(f"n = {n}:")
-    me[n], op[n] = play_rounds(n, m, N-1)
-    print(f"Me: {me}, Opponent: {op}")
+    me1[n], op1[n] = play_rounds(n, m, N-1)
 
-fig = plt.figure("Best strategy vs m=6")
-ax = fig.add_subplot()
+M = 11
+me2 = np.zeros([N, M])
+op2 = np.zeros([N, M])
 
-ax.scatter(range(N), me)
-ax.set_xlabel("n")
-ax.set_ylabel("Years in prison")
-ax.set_title("Strategy evaluation vs m = 6")
-plt.savefig("figures/13_1a")
+for m in range(M):
+    for n in range(N):
+        me2[n, m], op2[n, m] = play_rounds(n, m, N - 1)
+
+
+# Plotting for 1a:
+fig1a = plt.figure("Best strategy vs m=6", figsize=(12, 6))
+ax1a = fig1a.add_subplot(121)
+
+ax1a.scatter(range(N), me1)
+ax1a.set_xlabel("n")
+ax1a.set_ylabel("Years in prison")
+ax1a.set_title("Strategy evaluation vs m = 6")
+
+# 1b:
+ax1b = fig1a.add_subplot(122)
+im = ax1b.imshow(me2, origin="lower")
+ax1b.set_xlabel("m")
+ax1b.set_ylabel("n")
+ax1b.set_title("Years in prison")
+ax1b.figure.colorbar(im)
+
+plt.savefig("figures/13_1ab")
 plt.show()
+
