@@ -71,35 +71,53 @@ def update_strats(s, p):
     return s_new
 
 
-def run_games(s, nRounds, timesteps):
+def run_games(s, nRounds, timesteps, mu):
     for timestep in range(timesteps):
+        # print(s)
         p = compete(s, nRounds)
         s = update_strats(s, p)
+        s = mutate(s, mu, nRounds)
 
+    return s
+
+
+def mutate(s, prob, N):
+    r = np.random.rand(s.shape[0], s.shape[1])
+    mask = r < prob
+    # print(s)
+    # print(mask)
+    s[mask] = np.random.randint(0,2,s.shape)[mask]*N
+    # print(s)
+    # print(np.where(r < prob, s, np.random.randint(0, 2)*N))
     return s
 
 
 N = 7      # Number of rounds
 T = 0       # Punishment for lone snitch
-R = 0.65     # Punishment if neither snitch
+R = 0.84     # Punishment if neither snitch
 P = 1       # Punishment if both snitch
-S = 1.5     # Punishment if snitched on
+# S = 1.5     # Punishment if snitched on
+mu = 0.01   # Probability of
 timesteps = 20
 
 # 13.2
 L = 30
-strats = np.zeros([L, L]) * (N - 0)
+# strats = np.ones([L, L]) * (N - 0)
 # strats[int(np.floor(L/2)), int(np.floor(L/2))] = 0
 # b)
 # strats[6,6], strats[12,12], strats[18, 18], strats[24,24] = 0,0,0,0
 # c)
-strats[int(np.floor(L/2)), int(np.floor(L/2))] = N
-strats[int(np.floor(L/2))+1, int(np.floor(L/2))] = N
-strats[int(np.floor(L/2))-1, int(np.floor(L/2))] = N
-strats[int(np.floor(L/2)), int(np.floor(L/2))+1] = N
-strats[int(np.floor(L/2)), int(np.floor(L/2))-1] = N
+# strats[int(np.floor(L/2)), int(np.floor(L/2))] = 0
+# d)?
+# strats[int(np.floor(L/2))+1, int(np.floor(L/2))] = N
+# strats[int(np.floor(L/2))-1, int(np.floor(L/2))] = N
+# strats[int(np.floor(L/2)), int(np.floor(L/2))+1] = N
+# strats[int(np.floor(L/2)), int(np.floor(L/2))-1] = N
 
-
+# 13.3
+strats = np.random.randint(0,2, [L,L])*N
+# Rlist = np.linspace(0.8, 0.88, 20)
+Slist = np.linspace(1.3, 1.7, 20)
 
 # print(f"strats: \n{strats}")
 # punishments = compete(strats)
@@ -107,28 +125,40 @@ strats[int(np.floor(L/2)), int(np.floor(L/2))-1] = N
 # new_strats = update_strats(strats, punishments)
 # print(f"New strats: \n{new_strats}")
 
-strats_after = run_games(strats, N, timesteps)
+coopRatio = []
+for i, S in enumerate(Slist):
+    print(f'{i} of {len(Slist)}')
+    strats_after = run_games(strats, N, timesteps, mu)
+    coopRatio.append(np.sum(strats_after)/(N*L**2))
 
 # Plotting
-fig = plt.figure()
-ax1 = fig.add_subplot(121)
-ax1.set_title("strategies")
-im1 = ax1.imshow(strats)
-ax1.figure.colorbar(im1)
+# fig = plt.figure()
+# ax1 = fig.add_subplot(121)
+# ax1.set_title("strategies")
+# im1 = ax1.imshow(strats)
+# ax1.figure.colorbar(im1)
 
 # ax2 = fig.add_subplot(222)
 # im2 = ax2.imshow(punishments)
 # ax2.set_title("Punishments")
 # ax2.figure.colorbar(im2)
 
-ax3 = fig.add_subplot(122)
-im3 = ax3.imshow(strats_after)
-ax3.set_title("New strats")
-ax3.figure.colorbar(im3)
+# ax3 = fig.add_subplot(122)
+# im3 = ax3.imshow(strats_after)
+# ax3.set_title("New strats")
+# ax3.figure.colorbar(im3)
 
-ax1.axis('off')
-# ax2.axis('off')
-ax3.axis('off')
+# ax1.axis('off')
+# # ax2.axis('off')
+# ax3.axis('off')
+
+# Plotting 13.3
+fig = plt.figure()
+ax4 = fig.add_subplot()
+ax4.plot(Slist, coopRatio)
+ax4.set_ylabel("Share of cooperators")
+ax4.set_xlabel("R")
+
 plt.show()
 
 
