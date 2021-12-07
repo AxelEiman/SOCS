@@ -72,13 +72,14 @@ def update_strats(s, p):
 
 
 def run_games(s, nRounds, timesteps, mu):
+    counts = []
     for timestep in range(timesteps):
         # print(s)
         p = compete(s, nRounds)
         s = update_strats(s, p)
         s = mutate(s, mu, nRounds)
-
-    return s
+        counts.append(count_strats(s))
+    return s, counts
 
 
 def mutate(s, prob, N):
@@ -86,17 +87,21 @@ def mutate(s, prob, N):
     mask = r < prob
     # print(s)
     # print(mask)
-    s[mask] = np.random.randint(0,2,s.shape)[mask]*N
+    s[mask] = np.random.randint(0, N+1, s.shape)[mask]
     # print(s)
     # print(np.where(r < prob, s, np.random.randint(0, 2)*N))
     return s
 
+def count_strats(s):
+    unique, counts = np.unique(s, return_counts=True)
+    # TODO göra detta till en matris typ? så kan man plotta varje linje som en rad kanske?
+    return dict(zip(unique, counts))
 
 N = 7      # Number of rounds
 T = 0       # Punishment for lone snitch
-R = 0.84     # Punishment if neither snitch
+R = 0.6     # Punishment if neither snitch
 P = 1       # Punishment if both snitch
-# S = 1.5     # Punishment if snitched on
+S = 1.5     # Punishment if snitched on
 mu = 0.01   # Probability of
 timesteps = 20
 
@@ -115,21 +120,21 @@ L = 30
 # strats[int(np.floor(L/2)), int(np.floor(L/2))-1] = N
 
 # 13.3
-strats = np.random.randint(0,2, [L,L])*N
+# strats = np.random.randint(0,2, [L,L])*N
 # Rlist = np.linspace(0.8, 0.88, 20)
-Slist = np.linspace(1.3, 1.7, 20)
+# Slist = np.linspace(1.3, 1.7, 20)
 
-# print(f"strats: \n{strats}")
-# punishments = compete(strats)
-# print(f"Punishments: \n{punishments}")
-# new_strats = update_strats(strats, punishments)
-# print(f"New strats: \n{new_strats}")
+# coopRatio = []
+# for i, S in enumerate(Slist):
+#     print(f'{i} of {len(Slist)}')
+#     strats_after = run_games(strats, N, timesteps, mu)
+#     coopRatio.append(np.sum(strats_after)/(N*L**2))
 
-coopRatio = []
-for i, S in enumerate(Slist):
-    print(f'{i} of {len(Slist)}')
-    strats_after = run_games(strats, N, timesteps, mu)
-    coopRatio.append(np.sum(strats_after)/(N*L**2))
+# 13.4
+strats = np.random.randint(0, N+1, [L,L])
+fin_strats, amounts_list = run_games(strats, N, timesteps, mu)
+
+
 
 # Plotting
 # fig = plt.figure()
@@ -153,11 +158,21 @@ for i, S in enumerate(Slist):
 # ax3.axis('off')
 
 # Plotting 13.3
+# fig = plt.figure()
+# ax4 = fig.add_subplot()
+# ax4.plot(Slist, coopRatio)
+# ax4.set_ylabel("Share of cooperators")
+# ax4.set_xlabel("R")
+
 fig = plt.figure()
-ax4 = fig.add_subplot()
-ax4.plot(Slist, coopRatio)
-ax4.set_ylabel("Share of cooperators")
-ax4.set_xlabel("R")
+ax5 = fig.add_subplot(121)
+im5 = ax5.imshow(fin_strats)
+ax5.set_title("End strategies")
+ax5.figure.colorbar()
+
+ax6 = fig.add_subplot(122)
+
+
 
 plt.show()
 
