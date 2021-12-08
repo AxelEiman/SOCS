@@ -113,9 +113,9 @@ def count_strats(s, t, cnt_mat, nRounds):
 
 N = 7      # Number of rounds
 T = 0       # Punishment for lone snitch
-R = 0.75     # Punishment if neither snitch
+# R = 0.75     # Punishment if neither snitch
 P = 1       # Punishment if both snitch
-S = 1.5     # Punishment if snitched on
+# S = 1.5     # Punishment if snitched on
 mu = 0.01   # Probability of
 timesteps = 500
 skiptime = 100
@@ -150,7 +150,7 @@ L = 30
 # fin_strats, amounts_list = run_games(strats, N, timesteps, mu)
 
 # 13.5
-sz = 2 # TODO kör för (10?)
+sz = 11
 Rmin, Rmax = 0, 1
 Smin, Smax = 1, 2
 Rlist = np.linspace(Rmin, Rmax, sz)
@@ -218,11 +218,11 @@ im7 = ax7.imshow(var_mat, cmap=colors)
 
 ax7.set_ylabel('R')
 ax7.set_yticks(np.linspace(0, sz-1, len(Rlist)))
-ax7.set_yticklabels(Rlist)
+ax7.set_yticklabels(np.round(Rlist, 1))
 
 ax7.set_xlabel('S')
 ax7.set_xticks(np.linspace(0, sz-1, len(Slist)))
-ax7.set_xticklabels(Slist)
+ax7.set_xticklabels(np.round(Slist, 1))
 
 ax7.figure.colorbar(im7)
 ax7.set_title('Phase diagram, sum of variances')
