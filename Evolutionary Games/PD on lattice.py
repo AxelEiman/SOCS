@@ -24,6 +24,7 @@ def play_rounds(n, m, nrounds):
         if m_play == 1 and o_play == 1:
             m_punishment += P
             o_punishment += P
+            # TODO Kanske låta denna räkna klart på en gång om de ska snitcha på varann sen
         m_prev = m_play
         o_prev = o_play
     return m_punishment # , o_punishment
@@ -72,13 +73,13 @@ def update_strats(s, p):
 
 
 def run_games(s, nRounds, timesteps, mu):
-    counts = []
+    counts = np.zeros([nRounds+1, timesteps])
     for timestep in range(timesteps):
         # print(s)
         p = compete(s, nRounds)
         s = update_strats(s, p)
         s = mutate(s, mu, nRounds)
-        counts.append(count_strats(s))
+        counts = count_strats(s, timestep, counts, nRounds)
     return s, counts
 
 
@@ -92,14 +93,22 @@ def mutate(s, prob, N):
     # print(np.where(r < prob, s, np.random.randint(0, 2)*N))
     return s
 
-def count_strats(s):
+
+def count_strats(s, t, cnt_mat, nRounds):
     unique, counts = np.unique(s, return_counts=True)
-    # TODO göra detta till en matris typ? så kan man plotta varje linje som en rad kanske?
-    return dict(zip(unique, counts))
+    rest = 0
+    for strat in range(nRounds+1):
+        if strat in unique:
+            cnt_mat[strat, t] = counts[strat-rest]
+        else:
+            cnt_mat[strat, t] = 0
+            rest += 1
+    return cnt_mat
+
 
 N = 7      # Number of rounds
 T = 0       # Punishment for lone snitch
-R = 0.6     # Punishment if neither snitch
+R = 0.75     # Punishment if neither snitch
 P = 1       # Punishment if both snitch
 S = 1.5     # Punishment if snitched on
 mu = 0.01   # Probability of
@@ -164,14 +173,20 @@ fin_strats, amounts_list = run_games(strats, N, timesteps, mu)
 # ax4.set_ylabel("Share of cooperators")
 # ax4.set_xlabel("R")
 
-fig = plt.figure()
-ax5 = fig.add_subplot(121)
-im5 = ax5.imshow(fin_strats)
-ax5.set_title("End strategies")
-ax5.figure.colorbar()
-
-ax6 = fig.add_subplot(122)
-
+# Plotting 13.4
+# colors = plt.cm.get_cmap('jet_r')
+# fig = plt.figure()
+# ax5 = fig.add_subplot(121)
+# im5 = ax5.imshow(fin_strats, cmap=colors)
+# ax5.set_title("End strategies")
+# ax5.figure.colorbar(im5)
+#
+#
+# ax6 = fig.add_subplot(122)
+# for id, cnt in enumerate(amounts_list):
+#     ax6.plot(cnt/(L**2), color=colors(id/len(amounts_list)))
+# ax6.set_ylabel("Population fraction")
+# ax6.set_xlabel('Time')
 
 
 plt.show()
