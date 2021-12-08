@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 
 def play_rounds(n, m, nrounds):
@@ -37,15 +38,19 @@ def make_choice(strat, r, o_prev):
         return 1
 
 
-def compete(strats, nRounds):
-    for round in range(nRounds):
-        punishments = np.zeros(shape=strats.shape)
-        for r, line in enumerate(strats):
-            for c, strat in enumerate(line):
-                punishments[r, c] += play_rounds(strats[r, c], np.roll(strats, 1, axis=0)[r, c], N)
-                punishments[r, c] += play_rounds(strats[r, c], np.roll(strats, -1, axis=0)[r, c], N)
-                punishments[r, c] += play_rounds(strats[r, c], np.roll(strats, 1, axis=1)[r, c], N)
-                punishments[r, c] += play_rounds(strats[r, c], np.roll(strats, -1, axis=1)[r, c], N)
+def compete(strats, N):
+    su = np.roll(strats, 1, axis=0)
+    sd = np.roll(strats, -1, axis=0)
+    sl = np.roll(strats, 1, axis=1)
+    sr = np.roll(strats, -1, axis=1)
+
+    punishments = np.zeros(shape=strats.shape)
+    for r, line in enumerate(strats):
+        for c, strat in enumerate(line):
+            punishments[r, c] += play_rounds(strats[r, c], su[r, c], N)
+            punishments[r, c] += play_rounds(strats[r, c], sd[r, c], N)
+            punishments[r, c] += play_rounds(strats[r, c], sl[r, c], N)
+            punishments[r, c] += play_rounds(strats[r, c], sr[r, c], N)
     return punishments
 
 
@@ -113,7 +118,7 @@ P = 1       # Punishment if both snitch
 S = 1.5     # Punishment if snitched on
 mu = 0.01   # Probability of
 timesteps = 20
-
+t_start = time.perf_counter()
 # 13.2
 L = 30
 # strats = np.ones([L, L]) * (N - 0)
@@ -174,20 +179,23 @@ fin_strats, amounts_list = run_games(strats, N, timesteps, mu)
 # ax4.set_xlabel("R")
 
 # Plotting 13.4
-# colors = plt.cm.get_cmap('jet_r')
-# fig = plt.figure()
-# ax5 = fig.add_subplot(121)
-# im5 = ax5.imshow(fin_strats, cmap=colors)
-# ax5.set_title("End strategies")
-# ax5.figure.colorbar(im5)
-#
-#
-# ax6 = fig.add_subplot(122)
-# for id, cnt in enumerate(amounts_list):
-#     ax6.plot(cnt/(L**2), color=colors(id/len(amounts_list)))
-# ax6.set_ylabel("Population fraction")
-# ax6.set_xlabel('Time')
+colors = plt.cm.get_cmap('jet_r')
+fig = plt.figure()
+ax5 = fig.add_subplot(121)
+im5 = ax5.imshow(fin_strats, cmap=colors)
+ax5.set_title("End strategies")
+ax5.figure.colorbar(im5)
 
+
+ax6 = fig.add_subplot(122)
+for id, cnt in enumerate(amounts_list):
+    ax6.plot(cnt/(L**2), color=colors(id/len(amounts_list)))
+ax6.set_ylabel("Population fraction")
+ax6.set_xlabel('Time')
+
+
+t_stop = time.perf_counter()
+print(f'Elapsed time: {t_stop-t_start}')
 
 plt.show()
 
