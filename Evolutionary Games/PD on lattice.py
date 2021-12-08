@@ -117,7 +117,8 @@ R = 0.75     # Punishment if neither snitch
 P = 1       # Punishment if both snitch
 S = 1.5     # Punishment if snitched on
 mu = 0.01   # Probability of
-timesteps = 20
+timesteps = 500
+skiptime = 100
 t_start = time.perf_counter()
 # 13.2
 L = 30
@@ -145,9 +146,25 @@ L = 30
 #     coopRatio.append(np.sum(strats_after)/(N*L**2))
 
 # 13.4
-strats = np.random.randint(0, N+1, [L,L])
-fin_strats, amounts_list = run_games(strats, N, timesteps, mu)
+# strats = np.random.randint(0, N+1, [L,L])
+# fin_strats, amounts_list = run_games(strats, N, timesteps, mu)
 
+# 13.5
+sz = 2 # TODO kör för (10?)
+Rmin, Rmax = 0, 1
+Smin, Smax = 1, 2
+Rlist = np.linspace(Rmin, Rmax, sz)
+Slist = np.linspace(Smin, Smax, sz)
+var_mat = np.zeros([len(Rlist), len(Slist)])
+
+strats = np.random.randint(0, N+1, [L, L])
+for idr, R in enumerate(Rlist):
+    for ids, S in enumerate(Slist):
+        var = 0
+        fin_strats, amounts_list = run_games(strats, N, timesteps, mu)
+        for strat in amounts_list:
+            var += np.var(strat[skiptime:])
+        var_mat[idr, ids] = var
 
 
 # Plotting
@@ -179,19 +196,36 @@ fin_strats, amounts_list = run_games(strats, N, timesteps, mu)
 # ax4.set_xlabel("R")
 
 # Plotting 13.4
-colors = plt.cm.get_cmap('jet_r')
+# colors = plt.cm.get_cmap('jet_r')
+# fig = plt.figure()
+# ax5 = fig.add_subplot(121)
+# im5 = ax5.imshow(fin_strats, cmap=colors)
+# ax5.set_title("End strategies")
+# ax5.figure.colorbar(im5)
+#
+#
+# ax6 = fig.add_subplot(122)
+# for id, cnt in enumerate(amounts_list):
+#     ax6.plot(cnt/(L**2), color=colors(id/len(amounts_list)))
+# ax6.set_ylabel("Population fraction")
+# ax6.set_xlabel('Time')
+
+# 13.5
+colors = plt.cm.get_cmap('viridis')
 fig = plt.figure()
-ax5 = fig.add_subplot(121)
-im5 = ax5.imshow(fin_strats, cmap=colors)
-ax5.set_title("End strategies")
-ax5.figure.colorbar(im5)
+ax7 = fig.add_subplot()
+im7 = ax7.imshow(var_mat, cmap=colors)
 
+ax7.set_ylabel('R')
+ax7.set_yticks(np.linspace(0, sz-1, len(Rlist)))
+ax7.set_yticklabels(Rlist)
 
-ax6 = fig.add_subplot(122)
-for id, cnt in enumerate(amounts_list):
-    ax6.plot(cnt/(L**2), color=colors(id/len(amounts_list)))
-ax6.set_ylabel("Population fraction")
-ax6.set_xlabel('Time')
+ax7.set_xlabel('S')
+ax7.set_xticks(np.linspace(0, sz-1, len(Slist)))
+ax7.set_xticklabels(Slist)
+
+ax7.figure.colorbar(im7)
+ax7.set_title('Phase diagram, sum of variances')
 
 
 t_stop = time.perf_counter()
